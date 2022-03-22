@@ -7,16 +7,17 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 
 
 public class LoginPage extends JFrame implements ActionListener {
-    private JLabel nameLabel;
-    private JLabel pinLabel;
-    private JLabel signupLabel;
-    private JTextField nameField;
-    private JTextField pinField;
-    private JButton loginButton;
-    private JButton signupButton;
+    private final JTextField nameField;
+    private final JPasswordField pinField;
+    private final JButton loginButton;
+    private final JButton signupButton;
+    private final JPanel p;
+    private JPanel contentPane;
+    private SignUpPage signUpPage;
 
 
     /**
@@ -42,21 +43,21 @@ public class LoginPage extends JFrame implements ActionListener {
             e.printStackTrace();
         }
 
-        JPanel p = new JPanel();
+        p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 
-        nameLabel = new JLabel("Enter name:");
+        JLabel nameLabel = new JLabel("Enter name:");
         p.add(nameLabel);
         nameField = new JTextField(10);
         p.add(nameField);
-        pinLabel = new JLabel("Enter PIN: ");
+        JLabel pinLabel = new JLabel("Enter PIN: ");
         p.add(pinLabel);
-        pinField = new JTextField(4);
+        pinField = new JPasswordField(4);
         p.add(pinField);
         loginButton = new JButton("Login");
         p.add(loginButton);
         loginButton.addActionListener(this);
-        signupLabel = new JLabel("Don't have an account? Create one!");
+        JLabel signupLabel = new JLabel("Don't have an account? Create one!");
         p.add(signupLabel);
         signupButton = new JButton("Sign Up");
         p.add(signupButton);
@@ -76,23 +77,40 @@ public class LoginPage extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         Object s = e.getSource();
         if (s == loginButton) {
-            attemptLogin(nameField.getText(), pinField.getText());
+            attemptLogin(nameField.getText(), pinField.getPassword());
         } else if (s == signupButton) {
-            signUp();
+            // Create a sign-up form
+            signUpPage = new SignUpPage(this);
+            contentPane = (JPanel) this.getContentPane();
+            contentPane.removeAll();
+            contentPane.add(signUpPage);
+            contentPane.revalidate();
+            contentPane.repaint();
+        } else if (s == signUpPage.getDoneButton()) {
+            // create the account
+            signUpPage.createAccount();
+        } else if (s == signUpPage.getCancelButton()) {
+            contentPane = (JPanel) this.getContentPane();
+            contentPane.removeAll();
+            contentPane.add(p);
+            contentPane.revalidate();
+            contentPane.repaint();
         }
 
     }
 
-    private void signUp() {
-    }
-
     /**
-     *  Attempts a user login
-     * 
+     * Attempts a user login
+     * <p>
+     * TODO: Make the login thru a file I/O system instead of a username
+     *
      * @param name The inputted name
-     * @param pin The inputted PIN
+     * @param pin  The inputted PIN (must be a character array as opposed to a string for security)
      */
-    private void attemptLogin(String name, String pin) {
-        
+    private void attemptLogin(String name, char[] pin) {
+
+
+        // Zero out the array for security
+        Arrays.fill(pin, '0');
     }
 }
