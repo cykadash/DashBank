@@ -7,17 +7,21 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.Arrays;
 
 
 public class LoginPage extends JFrame implements ActionListener {
-    private final JTextField nameField;
+    final JPanel p;
+    //    private final JTextField nameField;
     private final JPasswordField pinField;
+    private final JButton uploadButton;
     private final JButton loginButton;
     private final JButton signupButton;
-    private final JPanel p;
+    private final JFileChooser fc;
     private JPanel contentPane;
     private SignUpPage signUpPage;
+    private File card = null;
 
 
     /**
@@ -46,10 +50,13 @@ public class LoginPage extends JFrame implements ActionListener {
         p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 
-        JLabel nameLabel = new JLabel("Enter name:");
+        JLabel nameLabel = new JLabel("Upload your .card file:");
         p.add(nameLabel);
-        nameField = new JTextField(10);
-        p.add(nameField);
+//        nameField = new JTextField(10);
+//        p.add(nameField);
+        uploadButton = new JButton("Upload");
+        p.add(uploadButton);
+        uploadButton.addActionListener(this);
         JLabel pinLabel = new JLabel("Enter PIN: ");
         p.add(pinLabel);
         pinField = new JPasswordField(4);
@@ -66,6 +73,8 @@ public class LoginPage extends JFrame implements ActionListener {
 
         this.setContentPane(p);
         this.setVisible(true);
+
+        fc = new JFileChooser();
     }
 
     /**
@@ -76,8 +85,10 @@ public class LoginPage extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         Object s = e.getSource();
-        if (s == loginButton) {
-            attemptLogin(nameField.getText(), pinField.getPassword());
+        if (s == uploadButton) {
+            card = uploadFile();
+        } else if (s == loginButton) {
+            attemptLogin(card, pinField.getPassword());
         } else if (s == signupButton) {
             // Create a sign-up form
             signUpPage = new SignUpPage(this);
@@ -86,16 +97,26 @@ public class LoginPage extends JFrame implements ActionListener {
             contentPane.add(signUpPage);
             contentPane.revalidate();
             contentPane.repaint();
-        } else if (s == signUpPage.getDoneButton()) {
-            // create the account
-            signUpPage.createAccount();
-        } else if (s == signUpPage.getCancelButton()) {
-            contentPane = (JPanel) this.getContentPane();
-            contentPane.removeAll();
-            contentPane.add(p);
-            contentPane.revalidate();
-            contentPane.repaint();
         }
+
+    }
+
+    /**
+     * Uploads a user submitted file
+     * <p>
+     * TODO: force it to be a .card file maybe
+     */
+    private File uploadFile() {
+        int returnVal = fc.showOpenDialog(this);
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            System.out.println("Opening: " + fc.getSelectedFile().getName() + ".");
+            uploadButton.setText("Uploaded! Press again to upload different card");
+            return fc.getSelectedFile();
+        } else {
+            System.out.println("Open command cancelled by user.");
+        }
+        return null;
 
     }
 
@@ -104,10 +125,10 @@ public class LoginPage extends JFrame implements ActionListener {
      * <p>
      * TODO: Make the login thru a file I/O system instead of a username
      *
-     * @param name The inputted name
+     * @param card The .card file
      * @param pin  The inputted PIN (must be a character array as opposed to a string for security)
      */
-    private void attemptLogin(String name, char[] pin) {
+    private void attemptLogin(File card, char[] pin) {
 
 
         // Zero out the array for security
