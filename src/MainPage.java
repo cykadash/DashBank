@@ -22,7 +22,10 @@ public class MainPage extends JFrame {
      */
     public MainPage(Object[] cardData) throws HeadlessException {
         super();
+        this.setBounds(300, 200, 1000, 700);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 
+        this.setVisible(true);
     }
 }

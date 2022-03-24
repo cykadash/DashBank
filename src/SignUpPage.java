@@ -8,13 +8,9 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Scanner;
 
 public class SignUpPage extends JPanel implements ActionListener {
     private final JTextField firstNameField;
@@ -105,14 +101,21 @@ public class SignUpPage extends JPanel implements ActionListener {
     private char[] createCardNumber() {
         // file containing unique random 8 digit numbers
         File nums = new File("src/availableNumbers.txt");
-        Scanner reader = null;
+
+        BufferedReader reader = null;
         try {
-            reader = new Scanner(nums);
+            reader = new BufferedReader(new FileReader(nums));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         assert reader != null;
-        char[] result = reader.nextLine().toCharArray();
+        char[] result = new char[0];
+        try {
+            result = reader.readLine().toCharArray();
+            removeUsedPin(reader, nums);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         char[] blank = new char[8];
         for (int i = 0; i < blank.length; i++) {
             if (result[i] == '\0') {
@@ -122,6 +125,17 @@ public class SignUpPage extends JPanel implements ActionListener {
             }
         }
         return blank;
+    }
+
+    private void removeUsedPin(BufferedReader reader, File nums) {
+        File tmp = new File("src/tmp.txt");
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(tmp));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     private boolean pinConfirmed() {
