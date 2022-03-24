@@ -4,11 +4,15 @@
  */
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Arrays;
+import java.util.Scanner;
 
 
 public class LoginPage extends JFrame implements ActionListener {
@@ -104,9 +108,12 @@ public class LoginPage extends JFrame implements ActionListener {
     /**
      * Uploads a user submitted file
      * <p>
-     * TODO: force it to be a .card file maybe
      */
     private File uploadFile() {
+        fc.setDialogTitle("Open a card.");
+        FileFilter ff = new FileNameExtensionFilter("DashBank cards", "card");
+        fc.setAcceptAllFileFilterUsed(false);
+        fc.addChoosableFileFilter(ff);
         int returnVal = fc.showOpenDialog(this);
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -129,6 +136,24 @@ public class LoginPage extends JFrame implements ActionListener {
      * @param pin  The inputted PIN (must be a character array as opposed to a string for security)
      */
     private void attemptLogin(File card, char[] pin) {
+        Scanner reader = null;
+        try {
+            reader = new Scanner(card);
+        } catch (FileNotFoundException e) {
+            JOptionPane.showMessageDialog(null, "Error: No card uploaded.", "Error!", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+            return;
+        }
+        String firstNameStr = reader.nextLine();
+        String lastNameStr = reader.nextLine();
+        String realPinStr = reader.nextLine();
+        String balanceStr = reader.nextLine();
+        Object[] data = Bank.parseCardInfo(firstNameStr, lastNameStr, realPinStr, balanceStr);
+
+        if (Arrays.equals((char[]) data[2], pin)) {
+            Bank.loggedIn = true;
+            Bank.currentCardData = data;
+        }
 
 
         // Zero out the array for security

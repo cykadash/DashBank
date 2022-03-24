@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -80,8 +81,9 @@ public class SignUpPage extends JPanel implements ActionListener {
                 FileWriter writer = new FileWriter(card.getAbsolutePath());
                 writer.write("[First Name]\t" + firstName + '\n');
                 writer.write("[Last Name]\t" + lastName + '\n');
-                writer.write(new StringBuilder().append("[PIN]\t").append(pin).append('\n').toString());
-                writer.write("[Balance]\t" + 0.00d + "\t$\n");
+                writer.write(new StringBuilder().append("[PIN]\t\t").append(pin).append('\n').toString());
+                writer.write("[Balance]\t" + 0.00d);
+                writer.close();
             } catch (IOException e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(null, "Error: Check logs for details", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -89,7 +91,7 @@ public class SignUpPage extends JPanel implements ActionListener {
             }
 
             System.out.println("Save as file: " + card.getAbsolutePath());
-            JOptionPane.showMessageDialog(null, "Card successfully saved at" + card.getAbsolutePath(), "Success!", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Card successfully saved at " + card.getAbsolutePath(), "Success!", JOptionPane.INFORMATION_MESSAGE);
 
         }
 
@@ -122,6 +124,10 @@ public class SignUpPage extends JPanel implements ActionListener {
         return blank;
     }
 
+    private boolean pinConfirmed() {
+        return Arrays.equals(pinField.getPassword(), confirmPinField.getPassword());
+    }
+
     /**
      * Invoked when an action occurs.
      *
@@ -149,11 +155,5 @@ public class SignUpPage extends JPanel implements ActionListener {
             contentPane.revalidate();
             contentPane.repaint();
         }
-    }
-
-    private boolean pinConfirmed() {
-        char[] a = pinField.getPassword();
-        char[] b = confirmPinField.getPassword();
-        return a == b;
     }
 }
