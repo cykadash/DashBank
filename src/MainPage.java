@@ -12,10 +12,10 @@ public class MainPage extends JFrame implements ActionListener {
     private JLabel greetingLabel;
     private JLabel balanceLabel;
     private JLabel genericLabel; // Default label to be used for displaying information
-    private JFormattedTextField withdrawlAmountField;
+    private JFormattedTextField withdrawAmountField;
     private JFormattedTextField depositAmountField;
     private JButton depositButton;
-    private JButton withdrawlButton;
+    private JButton withdrawButton;
     private JButton logoutButton;
     private ScrollPane transactionHistory;
 
@@ -46,7 +46,25 @@ public class MainPage extends JFrame implements ActionListener {
 
     private void createUI() {
         JPanel p = new JPanel();
-        p.setLayout(new GridBagLayout());
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+
+        greetingLabel = new JLabel("Greetings, ");
+        p.add(greetingLabel);
+        balanceLabel = new JLabel("Balance: ");
+        p.add(balanceLabel);
+        genericLabel = new JLabel("Withdraw: ");
+        p.add(genericLabel);
+        withdrawAmountField  = new JFormattedTextField(0d);
+        p.add(withdrawAmountField);
+        withdrawButton = new JButton("Withdraw");
+        p.add(withdrawButton);
+        genericLabel = new JLabel("Deposit: ");
+        p.add(genericLabel);
+        depositAmountField = new JFormattedTextField(0d);
+        p.add(depositAmountField);
+        depositButton = new JButton("Deposit");
+
+
     }
 
     /**
