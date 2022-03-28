@@ -20,7 +20,6 @@ public class Bank {
         MainPage mp = new MainPage(currentCardData);
 
 
-
     }
 
     static Object[] parseCardInfo(String firstName, String lastName, String realPinStr, String balanceStr) {
