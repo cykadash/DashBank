@@ -9,7 +9,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -25,7 +24,7 @@ public class LoginPage extends JFrame implements ActionListener {
     private final JFileChooser fc;
     private JPanel contentPane;
     private SignUpPage signUpPage;
-    private File card = null;
+    private Card card = null;
 
 
     /**
@@ -109,7 +108,7 @@ public class LoginPage extends JFrame implements ActionListener {
      * Uploads a user submitted file
      * <p>
      */
-    private File uploadFile() {
+    private Card uploadFile() {
         fc.setDialogTitle("Open a card.");
         FileFilter ff = new FileNameExtensionFilter("DashBank cards", "card");
         fc.setAcceptAllFileFilterUsed(false);
@@ -119,7 +118,7 @@ public class LoginPage extends JFrame implements ActionListener {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             System.out.println("Opening: " + fc.getSelectedFile().getName() + ".");
             uploadButton.setText("Uploaded! Press again to upload different card");
-            return fc.getSelectedFile();
+            return (Card) fc.getSelectedFile();
         } else {
             System.out.println("Open command cancelled by user.");
         }
@@ -130,12 +129,11 @@ public class LoginPage extends JFrame implements ActionListener {
     /**
      * Attempts a user login
      * <p>
-     * TODO: Make the login thru a file I/O system instead of a username
      *
      * @param card The .card file
      * @param pin  The inputted PIN (must be a character array as opposed to a string for security)
      */
-    private void attemptLogin(File card, char[] pin) {
+    private void attemptLogin(Card card, char[] pin) {
         Scanner reader = null;
         try {
             reader = new Scanner(card);

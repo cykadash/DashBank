@@ -66,7 +66,7 @@ public class SignUpPage extends JPanel implements ActionListener {
         FileFilter ff = new FileNameExtensionFilter("DashBank cards", "card");
         fc.setAcceptAllFileFilterUsed(false);
         fc.addChoosableFileFilter(ff);
-        File card = new File(new StringBuilder().append(fc.getCurrentDirectory()).append("/").append(createCardNumber()).append(".card").toString());
+        Card card = new Card(new StringBuilder().append(fc.getCurrentDirectory()).append("/").append(createCardNumber()).append(".card").toString());
         fc.setSelectedFile(card);
         int returnVal = fc.showSaveDialog(parentFrame);
 

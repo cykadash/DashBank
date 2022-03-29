@@ -7,13 +7,23 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Random;
 
 public class MainPage extends JFrame implements ActionListener {
+    private final String[] greetings = {
+            "Hello ",
+            "Welcome, ",
+            "Hey there ",
+            "Long time no see, ",
+            "Ahoy, ",
+            "Howdy, "
+    };
+    private final Object[] cardData;
     private JLabel greetingLabel;
     private JLabel balanceLabel;
     private JLabel genericLabel; // Default label to be used for displaying information
-    private JFormattedTextField withdrawAmountField;
-    private JFormattedTextField depositAmountField;
+    private JFormattedTextField withdrawField;
+    private JFormattedTextField depositField;
     private JButton depositButton;
     private JButton withdrawButton;
     private JButton logoutButton;
@@ -34,10 +44,11 @@ public class MainPage extends JFrame implements ActionListener {
      * @see Component#setVisible
      * @see JComponent#getDefaultLocale
      */
-    public MainPage(Object[] cardData) throws HeadlessException {
+    public MainPage(Object[] data) throws HeadlessException {
         super();
         this.setBounds(300, 200, 1000, 700);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        cardData = data;
 
         createUI();
 
@@ -46,25 +57,32 @@ public class MainPage extends JFrame implements ActionListener {
 
     private void createUI() {
         JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-
-        greetingLabel = new JLabel("Greetings, ");
-        p.add(greetingLabel);
-        balanceLabel = new JLabel("Balance: ");
-        p.add(balanceLabel);
-        genericLabel = new JLabel("Withdraw: ");
-        p.add(genericLabel);
-        withdrawAmountField  = new JFormattedTextField(0d);
-        p.add(withdrawAmountField);
+        p.setLayout(new BorderLayout());
+        Random rand = new Random();
+        // Display a random greeting with the user's first name.
+        greetingLabel = new JLabel(greetings[rand.nextInt(6)] + cardData[0]);
+        p.add(greetingLabel, BorderLayout.NORTH);
+        JPanel center = new JPanel();
+        center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
+        balanceLabel = new JLabel("Balance:\t" + cardData[3] + "\t$");
+        center.add(balanceLabel, BorderLayout.CENTER);
+        genericLabel = new JLabel("Withdraw:");
+        center.add(genericLabel, BorderLayout.CENTER);
+        withdrawField = new JFormattedTextField(0.0d);
+        center.add(withdrawField, BorderLayout.CENTER);
         withdrawButton = new JButton("Withdraw");
-        p.add(withdrawButton);
-        genericLabel = new JLabel("Deposit: ");
-        p.add(genericLabel);
-        depositAmountField = new JFormattedTextField(0d);
-        p.add(depositAmountField);
+        center.add(withdrawButton, BorderLayout.CENTER);
+        genericLabel = new JLabel("Deposit:");
+        center.add(genericLabel);
+        depositField = new JFormattedTextField(0.0d);
+        center.add(depositField);
         depositButton = new JButton("Deposit");
+        center.add(depositButton);
 
 
+        p.add(center, BorderLayout.CENTER);
+
+        this.setContentPane(p);
     }
 
     /**
