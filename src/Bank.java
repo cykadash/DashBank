@@ -7,6 +7,7 @@
 public class Bank {
     static volatile boolean loggedIn = false;
     static Object[] currentCardData;
+    static Card card;
 
     public Bank() {
         // Login window
@@ -17,22 +18,22 @@ public class Bank {
         }
         l.dispose();
         // Main banking page
-        MainPage mp = new MainPage(currentCardData);
+        MainPage mp = new MainPage(card);
 
 
     }
 
-    static Object[] parseCardInfo(String firstName, String lastName, String realPinStr, String balanceStr) {
-        String[] splitter = firstName.split("]\t");
-        firstName = splitter[1];
-        splitter = lastName.split("]\t");
-        lastName = splitter[1];
-        splitter = realPinStr.split("]\t\t");
-        char[] realPin = splitter[1].toCharArray();
-        splitter = balanceStr.split("]\t");
-        double balance = Double.parseDouble(splitter[1]);
-        return new Object[]{firstName, lastName, realPin, balance};
-    }
+//    static Object[] parseCardInfo(String firstName, String lastName, String realPinStr, String balanceStr) {
+//        String[] splitter = firstName.split("]\t");
+//        firstName = splitter[1];
+//        splitter = lastName.split("]\t");
+//        lastName = splitter[1];
+//        splitter = realPinStr.split("]\t\t");
+//        char[] realPin = splitter[1].toCharArray();
+//        splitter = balanceStr.split("]\t");
+//        double balance = Double.parseDouble(splitter[1]);
+//        return new Object[]{firstName, lastName, realPin, balance};
+//    }
 
     public static void main(String[] args) {
         new Bank();

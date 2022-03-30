@@ -17,32 +17,30 @@ public class Card extends File {
 
 
     /**
-     * Creates a new {@code File} instance by converting the given
-     * pathname string into an abstract pathname.  If the given string is
-     * the empty string, then the result is the empty abstract pathname.
+     * Creates a new {@code Card} instance with the given pathname which calls File().
      *
      * @param pathname A pathname string
      * @throws NullPointerException If the {@code pathname} argument is {@code null}
      */
     public Card(String pathname) {
         super(pathname);
-
+        getData();
+        setData();
 
     }
+
 
     private void getData() {
         // Assign each variable to match the file.
         Scanner reader = null;
         try {
-            reader = new Scanner(this);
+            reader = new Scanner(new File(this.getAbsolutePath()));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         assert reader != null;
-        String str;
-        String[] splitter;
-        str = reader.nextLine();
-        splitter = str.split("]\t");
+        String str = reader.nextLine();
+        String[] splitter = str.split("]\t");
         firstName = splitter[1];
         str = reader.nextLine();
         splitter = str.split("]\t");
@@ -54,11 +52,16 @@ public class Card extends File {
         splitter = str.split("]\t");
         balance = Double.parseDouble(splitter[1]);
 
+
     }
 
     private void setData() {
         try {
+            // Delete the old contents of the card
+            new FileWriter(this.getAbsolutePath(), false).close();
+            // Write the new contents to the card
             FileWriter writer = new FileWriter(this.getAbsolutePath());
+
             writer.write("[First Name]\t" + firstName + '\n');
             writer.write("[Last Name]\t" + lastName + '\n');
             writer.write(new StringBuilder().append("[PIN]\t\t").append(pin).append('\n').toString());

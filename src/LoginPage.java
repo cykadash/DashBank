@@ -9,8 +9,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Scanner;
 
 
@@ -88,11 +90,9 @@ public class LoginPage extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         Object s = e.getSource();
-        if (s == uploadButton) {
-            card = uploadFile();
-        } else if (s == loginButton) {
-            attemptLogin(card, pinField.getPassword());
-        } else if (s == signupButton) {
+        if (s == uploadButton) card = new Card(Objects.requireNonNull(uploadFile()).getAbsolutePath());
+        else if (s == loginButton) attemptLogin(card, pinField.getPassword());
+        else if (s == signupButton) {
             // Create a sign-up form
             signUpPage = new SignUpPage(this);
             contentPane = (JPanel) this.getContentPane();
@@ -107,8 +107,10 @@ public class LoginPage extends JFrame implements ActionListener {
     /**
      * Uploads a user submitted file
      * <p>
+     *
+     * @return the uploaded file
      */
-    private Card uploadFile() {
+    private File uploadFile() {
         fc.setDialogTitle("Open a card.");
         FileFilter ff = new FileNameExtensionFilter("DashBank cards", "card");
         fc.setAcceptAllFileFilterUsed(false);
@@ -118,7 +120,7 @@ public class LoginPage extends JFrame implements ActionListener {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             System.out.println("Opening: " + fc.getSelectedFile().getName() + ".");
             uploadButton.setText("Uploaded! Press again to upload different card");
-            return (Card) fc.getSelectedFile();
+            return fc.getSelectedFile();
         } else {
             System.out.println("Open command cancelled by user.");
         }
@@ -142,15 +144,15 @@ public class LoginPage extends JFrame implements ActionListener {
             e.printStackTrace();
             return;
         }
-        String firstNameStr = reader.nextLine();
-        String lastNameStr = reader.nextLine();
-        String realPinStr = reader.nextLine();
-        String balanceStr = reader.nextLine();
-        Object[] data = Bank.parseCardInfo(firstNameStr, lastNameStr, realPinStr, balanceStr);
+//        String firstNameStr = reader.nextLine();
+//        String lastNameStr = reader.nextLine();
+//        String realPinStr = reader.nextLine();
+//        String balanceStr = reader.nextLine();
+//        Object[] data = Bank.parseCardInfo(firstNameStr, lastNameStr, realPinStr, balanceStr);
 
-        if (Arrays.equals((char[]) data[2], pin)) {
+        if (Arrays.equals(card.getPin(), pin)) {
             Bank.loggedIn = true;
-            Bank.currentCardData = data;
+            Bank.card = card;
         }
 
 

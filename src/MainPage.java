@@ -18,7 +18,7 @@ public class MainPage extends JFrame implements ActionListener {
             "Ahoy, ",
             "Howdy, "
     };
-    private final Object[] cardData;
+    private final Card card;
     private JLabel greetingLabel;
     private JLabel balanceLabel;
     private JLabel genericLabel; // Default label to be used for displaying information
@@ -44,12 +44,11 @@ public class MainPage extends JFrame implements ActionListener {
      * @see Component#setVisible
      * @see JComponent#getDefaultLocale
      */
-    public MainPage(Object[] data) throws HeadlessException {
+    public MainPage(Card newCard) throws HeadlessException {
         super();
         this.setBounds(300, 200, 1000, 700);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        cardData = data;
-
+        card = newCard;
         createUI();
 
         this.setVisible(true);
@@ -60,23 +59,25 @@ public class MainPage extends JFrame implements ActionListener {
         p.setLayout(new BorderLayout());
         Random rand = new Random();
         // Display a random greeting with the user's first name.
-        greetingLabel = new JLabel(greetings[rand.nextInt(6)] + cardData[0]);
+        greetingLabel = new JLabel(greetings[rand.nextInt(6)] + card.getFirstName());
         p.add(greetingLabel, BorderLayout.NORTH);
         JPanel center = new JPanel();
         center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
-        balanceLabel = new JLabel("Balance:\t" + cardData[3] + "\t$");
+        balanceLabel = new JLabel("Balance:\t" + card.getBalance() + "\t$");
         center.add(balanceLabel, BorderLayout.CENTER);
         genericLabel = new JLabel("Withdraw:");
         center.add(genericLabel, BorderLayout.CENTER);
         withdrawField = new JFormattedTextField(0.0d);
         center.add(withdrawField, BorderLayout.CENTER);
         withdrawButton = new JButton("Withdraw");
+        withdrawButton.addActionListener(this);
         center.add(withdrawButton, BorderLayout.CENTER);
         genericLabel = new JLabel("Deposit:");
         center.add(genericLabel);
         depositField = new JFormattedTextField(0.0d);
         center.add(depositField);
         depositButton = new JButton("Deposit");
+        depositButton.addActionListener(this);
         center.add(depositButton);
 
 
@@ -92,6 +93,11 @@ public class MainPage extends JFrame implements ActionListener {
      */
     @Override
     public void actionPerformed(ActionEvent e) {
-
+        Object s = e.getSource();
+        if (s == withdrawButton) {
+            // Withdraw specified amount greater than 0.
+        } else if (s == depositButton) {
+            // Deposit specified amount greater than 0.
+        }
     }
 }
