@@ -24,6 +24,8 @@ public class MainPage extends JFrame implements ActionListener {
     private JLabel genericLabel; // Default label to be used for displaying information
     private JFormattedTextField withdrawField;
     private JFormattedTextField depositField;
+    private JTextField withdrawMemoField;
+    private JTextField depositMemoField;
     private JButton depositButton;
     private JButton withdrawButton;
     private JButton logoutButton;
@@ -55,33 +57,83 @@ public class MainPage extends JFrame implements ActionListener {
     }
 
     private void createUI() {
+        // Main Panel
         JPanel p = new JPanel();
         p.setLayout(new BorderLayout());
         Random rand = new Random();
+
+        // Generic box layout panel
+        JPanel box = new JPanel();
+        box.setLayout(new BoxLayout(box, BoxLayout.Y_AXIS));
+
+        // Top Panel
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new GridLayout(0, 3));
+        topPanel.setBorder(BorderFactory.createLineBorder(Color.black, 1, true));
         // Display a random greeting with the user's first name.
         greetingLabel = new JLabel(greetings[rand.nextInt(6)] + card.getFirstName());
-        p.add(greetingLabel, BorderLayout.NORTH);
-        JPanel center = new JPanel();
-        center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
+        box.add(greetingLabel);
         balanceLabel = new JLabel("Balance:\t" + card.getBalance() + "\t$");
-        center.add(balanceLabel, BorderLayout.CENTER);
+        box.add(balanceLabel);
+        topPanel.add(box);
+        box = new JPanel();
+        box.setLayout(new BoxLayout(box, BoxLayout.Y_AXIS));
+        topPanel.add(box);
+        box = new JPanel();
+        box.setLayout(new BoxLayout(box, BoxLayout.Y_AXIS));
+        genericLabel = new JLabel(card.getFirstName() + " " + card.getLastName());
+        box.add(genericLabel);
+        logoutButton = new JButton("Log Out");
+        logoutButton.addActionListener(this);
+        box.add(logoutButton);
+        topPanel.add(box);
+
+        // Add padding so topPanel isn't right on the window border
+        JPanel padding = new JPanel();
+        padding.setBorder(BorderFactory.createEmptyBorder(5, 1, 5, 1));
+        padding.add(topPanel);
+        p.add(padding, BorderLayout.NORTH);
+
+
+        // Deposit/Withdraw Panel
+        JTabbedPane transactionPanel = new JTabbedPane();
+
+        // Withdraw panel
+        box = new JPanel();
+        box.setLayout(new BoxLayout(box, BoxLayout.Y_AXIS));
         genericLabel = new JLabel("Withdraw:");
-        center.add(genericLabel, BorderLayout.CENTER);
-        withdrawField = new JFormattedTextField(0.0d);
-        center.add(withdrawField, BorderLayout.CENTER);
+        box.add(genericLabel, BorderLayout.CENTER);
+        withdrawField = new JFormattedTextField(0d);
+        withdrawField.setValue(null);
+        box.add(withdrawField, BorderLayout.CENTER);
+        genericLabel = new JLabel("Memo: ");
+        box.add(genericLabel);
+        withdrawMemoField = new JTextField(10);
+        box.add(withdrawMemoField);
         withdrawButton = new JButton("Withdraw");
         withdrawButton.addActionListener(this);
-        center.add(withdrawButton, BorderLayout.CENTER);
+        box.add(withdrawButton, BorderLayout.CENTER);
+        transactionPanel.addTab("Withdraw", box);
+
+        // Deposit Panel
+        box = new JPanel();
+        box.setLayout(new BoxLayout(box, BoxLayout.Y_AXIS));
         genericLabel = new JLabel("Deposit:");
-        center.add(genericLabel);
-        depositField = new JFormattedTextField(0.0d);
-        center.add(depositField);
+        box.add(genericLabel);
+        depositField = new JFormattedTextField(0d);
+        withdrawField.setValue(null);
+        box.add(depositField);
+        genericLabel = new JLabel("Memo: ");
+        box.add(genericLabel);
+        depositMemoField = new JTextField(10);
+        box.add(depositMemoField);
         depositButton = new JButton("Deposit");
         depositButton.addActionListener(this);
-        center.add(depositButton);
+        box.add(depositButton);
+        transactionPanel.addTab("Deposit", box);
 
 
-        p.add(center, BorderLayout.CENTER);
+        p.add(transactionPanel, BorderLayout.WEST);
 
         this.setContentPane(p);
     }
@@ -95,9 +147,28 @@ public class MainPage extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         Object s = e.getSource();
         if (s == withdrawButton) {
-            // Withdraw specified amount greater than 0.
+            // Withdraws the specified greater than 0 amount assuming the money is there.
+            double wAmount = (double) withdrawField.getValue();
+            if (wAmount > 0) {
+                if (wAmount <= card.getBalance()) {
+                    card.setBalance(card.getBalance() - wAmount);
+                } else
+                    JOptionPane.showMessageDialog(null, "Error: Account does not have enough funds", "Error!", JOptionPane.ERROR_MESSAGE);
+            } else
+                JOptionPane.showMessageDialog(null, "Error: Amount must be greater than 0.\n User inputted" + wAmount + ".", "Error!", JOptionPane.ERROR_MESSAGE);
+            withdrawField.setValue(null);
+
         } else if (s == depositButton) {
-            // Deposit specified amount greater than 0.
+            // Deposits the specified greater than 0 amount.
+            double dAmount = (double) depositField.getValue();
+            if (dAmount > 0) {
+                card.setBalance(card.getBalance() + dAmount);
+
+            } else
+                JOptionPane.showMessageDialog(null, "Error: Amount must be greater than 0.\n User inputted" + dAmount + ".", "Error!", JOptionPane.ERROR_MESSAGE);
+            depositField.setValue(null);
         }
+        // Update the balance label.
+        balanceLabel.setText("Balance: " + card.getBalance() + "$");
     }
 }
