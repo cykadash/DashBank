@@ -11,9 +11,9 @@ import java.util.Random;
 
 public class MainPage extends JFrame implements ActionListener {
     private final String[] greetings = {
-            "Hello ",
+            "Hello, ",
             "Welcome, ",
-            "Hey there ",
+            "Hey there, ",
             "Long time no see, ",
             "Ahoy, ",
             "Howdy, "
@@ -68,31 +68,27 @@ public class MainPage extends JFrame implements ActionListener {
 
         // Top Panel
         JPanel topPanel = new JPanel();
-        topPanel.setLayout(new GridLayout(0, 3));
+        topPanel.setLayout(new BorderLayout());
         topPanel.setBorder(BorderFactory.createLineBorder(Color.black, 1, true));
         // Display a random greeting with the user's first name.
-        greetingLabel = new JLabel(greetings[rand.nextInt(6)] + card.getFirstName());
+        greetingLabel = new JLabel(greetings[rand.nextInt(6)] + card.getFirstName(), SwingConstants.CENTER);
+        greetingLabel.setVerticalAlignment(SwingConstants.TOP);
         box.add(greetingLabel);
-        balanceLabel = new JLabel("Balance:\t" + card.getBalance() + "\t$");
+        balanceLabel = new JLabel("Balance: \t" + card.getBalance() + "\t$", SwingConstants.CENTER);
+        balanceLabel.setVerticalAlignment(SwingConstants.BOTTOM);
         box.add(balanceLabel);
-        topPanel.add(box);
+        topPanel.add(box, BorderLayout.WEST);
         box = new JPanel();
         box.setLayout(new BoxLayout(box, BoxLayout.Y_AXIS));
-        topPanel.add(box);
-        box = new JPanel();
-        box.setLayout(new BoxLayout(box, BoxLayout.Y_AXIS));
-        genericLabel = new JLabel(card.getFirstName() + " " + card.getLastName());
+        genericLabel = new JLabel(card.getFirstName() + " " + card.getLastName(), SwingConstants.CENTER);
+        genericLabel.setVerticalAlignment(SwingConstants.TOP);
         box.add(genericLabel);
         logoutButton = new JButton("Log Out");
         logoutButton.addActionListener(this);
         box.add(logoutButton);
-        topPanel.add(box);
+        topPanel.add(box, BorderLayout.EAST);
 
-        // Add padding so topPanel isn't right on the window border
-        JPanel padding = new JPanel();
-        padding.setBorder(BorderFactory.createEmptyBorder(5, 1, 5, 1));
-        padding.add(topPanel);
-        p.add(padding, BorderLayout.NORTH);
+        p.add(topPanel, BorderLayout.NORTH);
 
 
         // Deposit/Withdraw Panel
@@ -135,6 +131,7 @@ public class MainPage extends JFrame implements ActionListener {
 
         p.add(transactionPanel, BorderLayout.WEST);
 
+        p.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         this.setContentPane(p);
     }
 
