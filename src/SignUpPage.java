@@ -127,6 +127,15 @@ public class SignUpPage extends JPanel implements ActionListener {
         return blank;
     }
 
+
+    /**
+     * Removes the first line from the available numbers file
+     * <p>
+     * TODO: finish actually making this
+     *
+     * @param reader
+     * @param nums
+     */
     private void removeUsedPin(BufferedReader reader, File nums) {
         File tmp = new File("src/tmp.txt");
         try {

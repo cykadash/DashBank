@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Date;
 import java.util.Random;
 
 public class MainPage extends JFrame implements ActionListener {
@@ -101,10 +102,12 @@ public class MainPage extends JFrame implements ActionListener {
         box.add(genericLabel, BorderLayout.CENTER);
         withdrawField = new JFormattedTextField(0d);
         withdrawField.setValue(null);
+        withdrawField.setMaximumSize(new Dimension(200, 20));
         box.add(withdrawField, BorderLayout.CENTER);
         genericLabel = new JLabel("Memo: ");
         box.add(genericLabel);
         withdrawMemoField = new JTextField(10);
+        withdrawMemoField.setMaximumSize(new Dimension(200, 20));
         box.add(withdrawMemoField);
         withdrawButton = new JButton("Withdraw");
         withdrawButton.addActionListener(this);
@@ -118,18 +121,27 @@ public class MainPage extends JFrame implements ActionListener {
         box.add(genericLabel);
         depositField = new JFormattedTextField(0d);
         withdrawField.setValue(null);
+        depositField.setMaximumSize(new Dimension(200, 20));
         box.add(depositField);
         genericLabel = new JLabel("Memo: ");
         box.add(genericLabel);
         depositMemoField = new JTextField(10);
+        depositMemoField.setMaximumSize(new Dimension(200, 20));
         box.add(depositMemoField);
         depositButton = new JButton("Deposit");
         depositButton.addActionListener(this);
         box.add(depositButton);
         transactionPanel.addTab("Deposit", box);
 
-
         p.add(transactionPanel, BorderLayout.WEST);
+
+        // Transaction History
+        transactionHistory = new ScrollPane();
+        for (int i = 0; i < card.getTotalTransactions(); i++) {
+            Object[] info = card.getTransaction(i);
+            transactionHistory.add(new TransactionCard((Date) info[0], (Double) info[1], (String) info[2]));
+        }
+
 
         p.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         this.setContentPane(p);
