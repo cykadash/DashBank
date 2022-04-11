@@ -7,7 +7,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Date;
 import java.util.Random;
 
 public class MainPage extends JFrame implements ActionListener {
@@ -139,9 +138,10 @@ public class MainPage extends JFrame implements ActionListener {
         transactionHistory = new ScrollPane();
         for (int i = 0; i < card.getTotalTransactions(); i++) {
             Object[] info = card.getTransaction(i);
-            transactionHistory.add(new TransactionCard((Date) info[0], (Double) info[1], (String) info[2]));
+            transactionHistory.add(new TransactionCard((String) info[0], (Double) info[1], (String) info[2]));
         }
 
+        p.add(transactionHistory);
 
         p.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         this.setContentPane(p);
@@ -157,14 +157,7 @@ public class MainPage extends JFrame implements ActionListener {
         Object s = e.getSource();
         if (s == withdrawButton) {
             // Withdraws the specified greater than 0 amount assuming the money is there.
-            double wAmount = (double) withdrawField.getValue();
-            if (wAmount > 0) {
-                if (wAmount <= card.getBalance()) {
-                    card.setBalance(card.getBalance() - wAmount);
-                } else
-                    JOptionPane.showMessageDialog(null, "Error: Account does not have enough funds", "Error!", JOptionPane.ERROR_MESSAGE);
-            } else
-                JOptionPane.showMessageDialog(null, "Error: Amount must be greater than 0.\n User inputted" + wAmount + ".", "Error!", JOptionPane.ERROR_MESSAGE);
+            card.withdraw((Double) withdrawField.getValue(), withdrawMemoField.getText());
             withdrawField.setValue(null);
 
         } else if (s == depositButton) {

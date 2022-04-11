@@ -3,13 +3,13 @@
  * A simple banking program
  */
 
+import javax.swing.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -28,20 +28,31 @@ public class Card extends File {
      */
     public Card(String pathname) {
         super(pathname);
-        getData();
-        setData();
+        try {
+            getData();
+            setData();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
-    private void getData() {
+    public void withdraw(double amount, String memo) {
+        if (amount > 0) {
+            if (amount <= balance) {
+                balance = balance - amount;
+                memo = "Withdrawal - " + memo;
+                addTransaction(new Date(), -amount, memo);
+            } else
+                JOptionPane.showMessageDialog(null, "Error: Account does not have enough funds", "Error!", JOptionPane.ERROR_MESSAGE);
+        } else
+            JOptionPane.showMessageDialog(null, "Error: Amount must be greater than 0.\n User inputted" + amount + ".", "Error!", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private void getData() throws FileNotFoundException, NoSuchElementException {
         // Assign each variable to match the file.
         Scanner reader = null;
-        try {
-            reader = new Scanner(new File(this.getAbsolutePath()));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        assert reader != null;
+        reader = new Scanner(this);
         String str = reader.nextLine();
         String[] splitter = str.split("]\t");
         firstName = splitter[1];
@@ -54,46 +65,46 @@ public class Card extends File {
         str = reader.nextLine();
         splitter = str.split("]\t");
         balance = Double.parseDouble(splitter[1]);
+        reader.nextLine();
+        totalTransactions = Integer.parseInt(reader.nextLine());
     }
 
-    private void setData() {
-        try {
-            File tmp = new File("src/tmp.txt");
-            // Save the transaction info to a temporary file
-            Scanner reader = new Scanner(new File(this.getAbsolutePath()));
-            FileWriter writer = new FileWriter(tmp);
-            while (!Objects.equals(reader.nextLine(), "[Transaction History]")) {
-                Thread.onSpinWait();
-            }
-            reader.nextLine();
-            String str;
-            while ((str = reader.nextLine()) != null) {
-                writer.write(str);
-            }
-
-            // Delete the old contents of the old file
-            new FileWriter(this.getAbsolutePath(), false).close();
-            // Write the new contents to the card
-            writer = new FileWriter(this.getAbsolutePath());
-
-            writer.write("[First Name]\t" + firstName + '\n');
-            writer.write("[Last Name]\t" + lastName + '\n');
-            writer.write(new StringBuilder().append("[PIN]\t\t").append(pin).append('\n').toString());
-            writer.write("[Balance]\t" + balance + '\n');
-            writer.write("[Transaction History]\n");
-            writer.write(String.valueOf(totalTransactions));
-
-            // Write the transaction history
-            reader = new Scanner(tmp);
-            while ((str = reader.nextLine()) != null) {
-                writer.write(str);
-            }
-
-            writer.close();
-        } catch (IOException e) {
-
-            e.printStackTrace();
+    private void setData() throws NoSuchElementException, IOException {
+        File tmp = new File("src/tmp.txt");
+        // Save the transaction info to a temporary file
+        Scanner reader = new Scanner(this);
+        FileWriter writer = new FileWriter(tmp);
+        while (!Objects.equals(reader.nextLine(), "[Transaction History]")) {
+            Thread.onSpinWait();
         }
+        reader.nextLine();
+        while (reader.hasNextLine()) {
+            writer.write('\n' + reader.nextLine());
+        }
+        writer.close();
+
+        // Delete the old contents of the old file
+        new FileWriter(this, false).close();
+        // Write the new contents to the card
+        writer = new FileWriter(this);
+
+        writer.write("[First Name]\t" + firstName + '\n');
+        writer.write("[Last Name]\t" + lastName + '\n');
+        writer.write(new StringBuilder().append("[PIN]\t\t").append(pin).append('\n').toString());
+        writer.write("[Balance]\t" + balance + '\n');
+        writer.write("[Transaction History]\n");
+        writer.write(String.valueOf(totalTransactions));
+
+        // Write the transaction history
+        reader = new Scanner(tmp);
+        String line;
+        while (reader.hasNextLine()) {
+            if ((line = reader.nextLine()) != "")
+                writer.write('\n' + line);
+        }
+
+        writer.close();
+        new FileWriter(tmp, false).close();
 
     }
 
@@ -113,13 +124,13 @@ public class Card extends File {
          */
 
         // Read the file and find the transaction at specified index
-        double amount = 0;
-        String memo = null;
-        Date date = null;
+        double amount;
+        String memo;
+        String date;
 
         Scanner reader = null;
         try {
-            reader = new Scanner(new File(this.getAbsolutePath()));
+            reader = new Scanner(this);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -131,7 +142,7 @@ public class Card extends File {
         totalTransactions = Integer.parseInt(reader.nextLine());
 
         // Make sure the transaction exists
-        if (index < totalTransactions) {
+        if (index > totalTransactions) {
             System.out.println("index out of range");
             return null;
         }
@@ -139,11 +150,7 @@ public class Card extends File {
         // Skip lines until arrived at index
         for (int i = 0; i < index * 3; i++) reader.nextLine();
 
-        try {
-            date = new SimpleDateFormat().parse(reader.nextLine());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        date = reader.nextLine();
         amount = Double.parseDouble(reader.nextLine());
         memo = reader.nextLine();
 
@@ -152,10 +159,11 @@ public class Card extends File {
 
     public void addTransaction(Date date, double amount, String memo) {
         try {
-            FileWriter writer = new FileWriter(this.getAbsolutePath(), true);
-            writer.write(date.toString());
-            writer.write(String.valueOf(amount));
-            writer.write(memo);
+            FileWriter writer = new FileWriter(this, true);
+            writer.write('\n' + date.toString() + '\n');
+            writer.write(String.valueOf(amount) + '\n');
+            writer.write(memo + '\n');
+            writer.close();
             totalTransactions++;
             setData();
         } catch (IOException e) {
@@ -164,47 +172,71 @@ public class Card extends File {
     }
 
     public int getTotalTransactions() {
-        getData();
+        try {
+            getData();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         return totalTransactions;
     }
 
     public String getFirstName() {
-        getData();
+        try {
+            getData();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public void setFirstName(String firstName) throws IOException {
         this.firstName = firstName;
         setData();
     }
 
     public String getLastName() {
-        getData();
+        try {
+            getData();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public void setLastName(String lastName) throws IOException {
         this.lastName = lastName;
         setData();
     }
 
     public char[] getPin() {
-        getData();
+        try {
+            getData();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         return pin;
     }
 
-    public void setPin(char[] pin) {
+    public void setPin(char[] pin) throws IOException {
         this.pin = pin;
         setData();
     }
 
     public double getBalance() {
-        getData();
+        try {
+            getData();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         return balance;
     }
 
     public void setBalance(double balance) {
         this.balance = balance;
-        setData();
+        try {
+            setData();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

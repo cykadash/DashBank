@@ -5,7 +5,6 @@
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Date;
 
 public class TransactionCard extends JPanel {
 
@@ -16,11 +15,11 @@ public class TransactionCard extends JPanel {
      * @param amount the amount that was transferred
      * @param memo   additional information about the transaction
      */
-    public TransactionCard(Date date, double amount, String memo) {
+    public TransactionCard(String date, double amount, String memo) {
         super();
         this.setMaximumSize(new Dimension(500, 300));
 
-        JLabel dateLabel = new JLabel(date.toString());
+        JLabel dateLabel = new JLabel(date);
         // changes the text color of the amountLabel based on whether it was an increase or decrease
         String amountString = amount > 0 ? "\\u001B[32m+" + amount + '$' : "\u001B[31m-" + amount + '$';
         JLabel amountLabel = new JLabel(amountString);
