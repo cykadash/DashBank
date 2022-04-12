@@ -19,9 +19,9 @@ public class MainPage extends JFrame implements ActionListener {
             "Howdy, "
     };
     private final Card card;
-    private JLabel greetingLabel;
+
+    private JPanel p;
     private JLabel balanceLabel;
-    private JLabel genericLabel; // Default label to be used for displaying information
     private JFormattedTextField withdrawField;
     private JFormattedTextField depositField;
     private JTextField withdrawMemoField;
@@ -29,7 +29,7 @@ public class MainPage extends JFrame implements ActionListener {
     private JButton depositButton;
     private JButton withdrawButton;
     private JButton logoutButton;
-    private ScrollPane transactionHistory;
+    private Component transactionHistoryScroll;
 
     /**
      * Constructs a new <code>MainPage</code> that is initially invisible.
@@ -47,7 +47,7 @@ public class MainPage extends JFrame implements ActionListener {
      * @see JComponent#getDefaultLocale
      */
     public MainPage(Card newCard) throws HeadlessException {
-        super();
+        super("DashBank");
         this.setBounds(300, 200, 1000, 700);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         card = newCard;
@@ -58,7 +58,8 @@ public class MainPage extends JFrame implements ActionListener {
 
     private void createUI() {
         // Main Panel
-        JPanel p = new JPanel();
+
+        p = new JPanel();
         p.setLayout(new BorderLayout());
         Random rand = new Random();
 
@@ -71,7 +72,7 @@ public class MainPage extends JFrame implements ActionListener {
         topPanel.setLayout(new BorderLayout());
         topPanel.setBorder(BorderFactory.createLineBorder(Color.black, 1, true));
         // Display a random greeting with the user's first name.
-        greetingLabel = new JLabel(greetings[rand.nextInt(6)] + card.getFirstName(), SwingConstants.CENTER);
+        JLabel greetingLabel = new JLabel(greetings[rand.nextInt(6)] + card.getFirstName(), SwingConstants.CENTER);
         greetingLabel.setVerticalAlignment(SwingConstants.TOP);
         box.add(greetingLabel);
         balanceLabel = new JLabel("Balance: \t" + card.getBalance() + "\t$", SwingConstants.CENTER);
@@ -80,7 +81,8 @@ public class MainPage extends JFrame implements ActionListener {
         topPanel.add(box, BorderLayout.WEST);
         box = new JPanel();
         box.setLayout(new BoxLayout(box, BoxLayout.Y_AXIS));
-        genericLabel = new JLabel(card.getFirstName() + " " + card.getLastName(), SwingConstants.CENTER);
+        // Default label to be used for displaying information
+        JLabel genericLabel = new JLabel(card.getFirstName() + " " + card.getLastName(), SwingConstants.CENTER);
         genericLabel.setVerticalAlignment(SwingConstants.TOP);
         box.add(genericLabel);
         logoutButton = new JButton("Log Out");
@@ -134,17 +136,37 @@ public class MainPage extends JFrame implements ActionListener {
 
         p.add(transactionPanel, BorderLayout.WEST);
 
-        // Transaction History
-        transactionHistory = new ScrollPane();
-        for (int i = 0; i < card.getTotalTransactions(); i++) {
-            Object[] info = card.getTransaction(i);
-            transactionHistory.add(new TransactionCard((String) info[0], (Double) info[1], (String) info[2]));
-        }
+        refreshUI();
 
-        p.add(transactionHistory);
+        p.add(transactionHistoryScroll);
 
         p.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         this.setContentPane(p);
+    }
+
+    private void refreshUI() {
+        withdrawField.setValue(null);
+        depositField.setValue(null);
+        withdrawMemoField.setText(null);
+        depositMemoField.setText(null);
+        balanceLabel.setText("Balance: " + card.getBalance() + "$");
+        // remove the old transactionHistory if it exists
+        if (transactionHistoryScroll != null) this.getContentPane().remove(transactionHistoryScroll);
+        // Transaction History
+        JPanel transactionHistory = new JPanel();
+        transactionHistory.setLayout(new BoxLayout(transactionHistory, BoxLayout.Y_AXIS));
+        transactionHistoryScroll = new JScrollPane(transactionHistory);
+        // Add each TransactionCard to the panel in chronological order
+        int bound = card.getTotalTransactions();
+        for (int i = bound - 1; i >= 0; i--) {
+            Object[] info = card.getTransaction(i);
+            transactionHistory.add(new TransactionCard((String) info[0], (Double) info[1], (String) info[2]));
+        }
+        p.add(Box.createVerticalGlue());
+        // add the new transactionHistory
+        p.add(transactionHistoryScroll);
+        this.setContentPane(p);
+        this.validate();
     }
 
     /**
@@ -156,21 +178,17 @@ public class MainPage extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         Object s = e.getSource();
         if (s == withdrawButton) {
-            // Withdraws the specified greater than 0 amount assuming the money is there.
+            // Withdraw the specified greater than 0 amount assuming the money is there.
             card.withdraw((Double) withdrawField.getValue(), withdrawMemoField.getText());
             withdrawField.setValue(null);
 
         } else if (s == depositButton) {
-            // Deposits the specified greater than 0 amount.
-            double dAmount = (double) depositField.getValue();
-            if (dAmount > 0) {
-                card.setBalance(card.getBalance() + dAmount);
-
-            } else
-                JOptionPane.showMessageDialog(null, "Error: Amount must be greater than 0.\n User inputted" + dAmount + ".", "Error!", JOptionPane.ERROR_MESSAGE);
+            // Deposit the specified greater than 0 amount.
+            card.deposit((Double) depositField.getValue(), depositMemoField.getText());
             depositField.setValue(null);
+        } else if (s == logoutButton) {
+            Bank.loggedIn = false;
         }
-        // Update the balance label.
-        balanceLabel.setText("Balance: " + card.getBalance() + "$");
+        refreshUI();
     }
 }

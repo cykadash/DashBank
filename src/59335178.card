@@ -1,0 +1,54 @@
+[First Name]	John
+[Last Name]	Smith
+[PIN]		1234
+[Balance]	186.0
+[Transaction History]
+16
+Mon Apr 11 12:59:54 EDT 2022
+-1.0
+Withdrawal - test
+Mon Apr 11 13:00:15 EDT 2022
+-1.0
+Withdrawal - test 2
+Mon Apr 11 13:02:16 EDT 2022
+-2.0
+Withdrawal - test 3
+Mon Apr 11 13:03:08 EDT 2022
+-1.0
+Withdrawal - test 4
+Tue Apr 12 12:30:30 EDT 2022
+200.0
+Deposit - 
+Tue Apr 12 12:35:50 EDT 2022
+-20.0
+Withdrawal - lunch
+Tue Apr 12 12:37:17 EDT 2022
+300.0
+Deposit - payroll
+Tue Apr 12 12:39:10 EDT 2022
+-250.0
+Withdrawal - car repair
+Tue Apr 12 12:40:16 EDT 2022
+-40.0
+Withdrawal - dinner
+Tue Apr 12 12:44:24 EDT 2022
+-20.0
+Withdrawal - breakfast
+Tue Apr 12 12:50:46 EDT 2022
+-20.0
+Withdrawal - lunch
+Tue Apr 12 12:56:31 EDT 2022
+-80.0
+Withdrawal - game
+Tue Apr 12 13:03:01 EDT 2022
+-5.0
+Withdrawal - snacks
+Tue Apr 12 13:03:24 EDT 2022
+300.0
+Deposit - payroll
+Tue Apr 12 13:03:47 EDT 2022
+-200.0
+Withdrawal - pos payment - Best Buy
+Tue Apr 12 13:06:25 EDT 2022
+20.0
+Deposit - bet with max

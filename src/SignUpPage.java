@@ -6,12 +6,15 @@
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Scanner;
 
+@SuppressWarnings({"StringBufferReplaceableByString", "ResultOfMethodCallIgnored"})
 public class SignUpPage extends JPanel implements ActionListener {
     private final JTextField firstNameField;
     private final JTextField lastNameField;
@@ -44,10 +47,12 @@ public class SignUpPage extends JPanel implements ActionListener {
         instructionLabel = new JLabel("Enter PIN:");
         this.add(instructionLabel);
         pinField = new JPasswordField(4);
+        pinField.setMaximumSize(new Dimension(60, 20));
         this.add(pinField);
         instructionLabel = new JLabel("Confirm PIN:");
         this.add(instructionLabel);
         confirmPinField = new JPasswordField(4);
+        confirmPinField.setMaximumSize(new Dimension(60, 20));
         this.add(confirmPinField);
         JPanel line = new JPanel();
         doneButton = new JButton("Done");
@@ -66,7 +71,7 @@ public class SignUpPage extends JPanel implements ActionListener {
         FileFilter ff = new FileNameExtensionFilter("DashBank cards", "card");
         fc.setAcceptAllFileFilterUsed(false);
         fc.addChoosableFileFilter(ff);
-        Card card = new Card(new StringBuilder().append(fc.getCurrentDirectory()).append("/").append(createCardNumber()).append(".card").toString());
+        Card card = new Card(new StringBuilder().append(fc.getCurrentDirectory()).append("/").append(createCardNumber()).append(".card").toString(), true);
         fc.setSelectedFile(card);
         int returnVal = fc.showSaveDialog(parentFrame);
 
@@ -78,7 +83,9 @@ public class SignUpPage extends JPanel implements ActionListener {
                 writer.write("[First Name]\t" + firstName + '\n');
                 writer.write("[Last Name]\t" + lastName + '\n');
                 writer.write(new StringBuilder().append("[PIN]\t\t").append(pin).append('\n').toString());
-                writer.write("[Balance]\t" + 0.00d);
+                writer.write("[Balance]\t" + 0.00d + '\n');
+                writer.write("[Transaction History]" + '\n');
+                writer.write("0");
                 writer.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -98,6 +105,7 @@ public class SignUpPage extends JPanel implements ActionListener {
      *
      * @return Random unique 8-digit number
      */
+    @SuppressWarnings("ManualArrayCopy")
     private char[] createCardNumber() {
         // file containing unique random 8 digit numbers
         File nums = new File("src/availableNumbers.txt");
@@ -109,22 +117,22 @@ public class SignUpPage extends JPanel implements ActionListener {
             e.printStackTrace();
         }
         assert reader != null;
-        char[] result = new char[0];
+        char[] result = new char[8];
+        for (int i = 0; i < 8; i++) {
+            result[i] = '0';
+        }
+        char[] arr = new char[0];
         try {
-            result = reader.readLine().toCharArray();
-            removeUsedPin(reader, nums);
+            arr = reader.readLine().toCharArray();
+            removeUsedPin(nums);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        char[] blank = new char[8];
-        for (int i = 0; i < blank.length; i++) {
-            if (result[i] == '\0') {
-                blank[i] = '0';
-            } else {
-                blank[i] = result[i];
-            }
+        for (int i = 0; i < arr.length; i++) {
+            result[i] = arr[i];
         }
-        return blank;
+
+        return result;
     }
 
 
@@ -132,14 +140,32 @@ public class SignUpPage extends JPanel implements ActionListener {
      * Removes the first line from the available numbers file
      * <p>
      * TODO: finish actually making this
-     *
-     * @param reader
-     * @param nums
      */
-    private void removeUsedPin(BufferedReader reader, File nums) {
+    private void removeUsedPin(File nums) throws FileNotFoundException {
         File tmp = new File("src/tmp.txt");
+        Scanner reader = new Scanner(nums);
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(tmp));
+            FileWriter writer = new FileWriter(tmp);
+            // Skip first line
+            reader.nextLine();
+            // Write second line
+            writer.write(reader.nextLine());
+            // Write remaining lines on newlines
+            while (reader.hasNextLine()) {
+                writer.write('\n' + reader.nextLine());
+            }
+            writer.close();
+            // Clear the old file
+            new FileWriter(nums, false).close();
+            writer = new FileWriter(nums);
+            reader = new Scanner(tmp);
+            // Repopulate the file with the new numbers
+            while (reader.hasNextLine()) {
+                writer.write(reader.nextLine() + '\n');
+            }
+            writer.close();
+            // Clear temporary file
+            new FileWriter(tmp, false).close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -164,7 +190,7 @@ public class SignUpPage extends JPanel implements ActionListener {
                 JOptionPane.showMessageDialog(null, "Error: First Name Field is Empty!", "Error!", JOptionPane.ERROR_MESSAGE);
             } else if (Objects.equals(lastNameField.getText(), "")) {
                 JOptionPane.showMessageDialog(null, "Error: Last Name Field is Empty!", "Error!", JOptionPane.ERROR_MESSAGE);
-            } else if (Objects.equals(pinField.getPassword(), null)) {
+            } else if (Arrays.equals(pinField.getPassword(), new char[0])) {
                 JOptionPane.showMessageDialog(null, "Error: PIN Field is Empty!", "Error!", JOptionPane.ERROR_MESSAGE);
             } else if (!pinConfirmed()) {
                 JOptionPane.showMessageDialog(null, "Error: PINs Are Not Equal!", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -174,9 +200,7 @@ public class SignUpPage extends JPanel implements ActionListener {
         } else if (s == cancelButton) {
             JPanel contentPane = (JPanel) parentFrame.getContentPane();
             contentPane.removeAll();
-            contentPane.add(parentFrame.p);
-            contentPane.revalidate();
-            contentPane.repaint();
+            parentFrame.createUI();
         }
     }
 }

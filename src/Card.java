@@ -13,6 +13,7 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Scanner;
 
+@SuppressWarnings("unused")
 public class Card extends File {
     private String firstName = "John";
     private String lastName = "Smith";
@@ -23,18 +24,20 @@ public class Card extends File {
     /**
      * Creates a new {@code Card} instance with the given pathname which calls File().
      *
-     * @param pathname A pathname string
+     * @param pathname The path of the file.
+     * @param newFile  {@code true} if card is new, {@code false} if not.
      * @throws NullPointerException If the {@code pathname} argument is {@code null}
      */
-    public Card(String pathname) {
+    public Card(String pathname, boolean newFile) {
         super(pathname);
-        try {
-            getData();
-            setData();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!newFile) {
+            try {
+                getData();
+                setData();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
     }
 
     public void withdraw(double amount, String memo) {
@@ -46,12 +49,21 @@ public class Card extends File {
             } else
                 JOptionPane.showMessageDialog(null, "Error: Account does not have enough funds", "Error!", JOptionPane.ERROR_MESSAGE);
         } else
-            JOptionPane.showMessageDialog(null, "Error: Amount must be greater than 0.\n User inputted" + amount + ".", "Error!", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Error: Amount must be greater than 0.\n User inputted: " + amount + ".", "Error!", JOptionPane.ERROR_MESSAGE);
     }
 
-    private void getData() throws FileNotFoundException, NoSuchElementException {
+    public void deposit(Double amount, String memo) {
+        if (amount > 0) {
+            balance = balance + amount;
+            memo = "Deposit - " + memo;
+            addTransaction(new Date(), amount, memo);
+        } else
+            JOptionPane.showMessageDialog(null, "Error: Amount must be greater than 0.\n User inputted: " + amount + ".", "Error!", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private void getData() throws IOException, NoSuchElementException {
         // Assign each variable to match the file.
-        Scanner reader = null;
+        Scanner reader;
         reader = new Scanner(this);
         String str = reader.nextLine();
         String[] splitter = str.split("]\t");
@@ -90,6 +102,7 @@ public class Card extends File {
 
         writer.write("[First Name]\t" + firstName + '\n');
         writer.write("[Last Name]\t" + lastName + '\n');
+        //noinspection StringBufferReplaceableByString
         writer.write(new StringBuilder().append("[PIN]\t\t").append(pin).append('\n').toString());
         writer.write("[Balance]\t" + balance + '\n');
         writer.write("[Transaction History]\n");
@@ -99,7 +112,7 @@ public class Card extends File {
         reader = new Scanner(tmp);
         String line;
         while (reader.hasNextLine()) {
-            if ((line = reader.nextLine()) != "")
+            if (!Objects.equals(line = reader.nextLine(), ""))
                 writer.write('\n' + line);
         }
 
@@ -174,7 +187,7 @@ public class Card extends File {
     public int getTotalTransactions() {
         try {
             getData();
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return totalTransactions;
@@ -183,7 +196,7 @@ public class Card extends File {
     public String getFirstName() {
         try {
             getData();
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return firstName;
@@ -197,7 +210,7 @@ public class Card extends File {
     public String getLastName() {
         try {
             getData();
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return lastName;
@@ -211,7 +224,7 @@ public class Card extends File {
     public char[] getPin() {
         try {
             getData();
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return pin;
@@ -225,7 +238,7 @@ public class Card extends File {
     public double getBalance() {
         try {
             getData();
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return balance;
@@ -239,4 +252,6 @@ public class Card extends File {
             e.printStackTrace();
         }
     }
+
+
 }

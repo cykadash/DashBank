@@ -17,15 +17,23 @@ public class TransactionCard extends JPanel {
      */
     public TransactionCard(String date, double amount, String memo) {
         super();
-        this.setMaximumSize(new Dimension(500, 300));
+        // any width, height of 100
+        this.setMaximumSize(new Dimension(9999, 100));
+        this.setMinimumSize(new Dimension(0, 100));
 
-        JLabel dateLabel = new JLabel(date);
-        // changes the text color of the amountLabel based on whether it was an increase or decrease
-        String amountString = amount > 0 ? "\\u001B[32m+" + amount + '$' : "\u001B[31m-" + amount + '$';
+//        JLabel dateLabel = new JLabel(date);
+        // change the sign of the amountLabel based on whether it was an increase or decrease
+        String amountString = amount + "$";
         JLabel amountLabel = new JLabel(amountString);
+        // Change the colour of amountLabel based on increase or decrease
+        if (amount > 0) amountLabel.setForeground(Color.green);
+        else amountLabel.setForeground(Color.red);
+
         JLabel memoLabel = new JLabel(memo);
-        this.add(dateLabel);
+//        this.add(dateLabel);
         this.add(amountLabel);
         this.add(memoLabel);
+
+        this.setBorder(BorderFactory.createTitledBorder(date));
     }
 }

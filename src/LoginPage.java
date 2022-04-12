@@ -17,15 +17,13 @@ import java.util.Scanner;
 
 
 public class LoginPage extends JFrame implements ActionListener {
-    final JPanel p;
-    //    private final JTextField nameField;
-    private final JPasswordField pinField;
-    private final JButton uploadButton;
-    private final JButton loginButton;
-    private final JButton signupButton;
     private final JFileChooser fc;
-    private JPanel contentPane;
-    private SignUpPage signUpPage;
+    JPanel p;
+    //    private final JTextField nameField;
+    private JPasswordField pinField;
+    private JButton uploadButton;
+    private JButton loginButton;
+    private JButton signupButton;
     private Card card = null;
 
 
@@ -43,8 +41,8 @@ public class LoginPage extends JFrame implements ActionListener {
      * @see JComponent#getDefaultLocale
      */
     public LoginPage() throws HeadlessException {
-        super();
-        this.setBounds(100, 100, 400, 200);
+        super("Login Page");
+        this.setBounds(600, 300, 400, 200);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -52,19 +50,25 @@ public class LoginPage extends JFrame implements ActionListener {
             e.printStackTrace();
         }
 
+        createUI();
+        this.setVisible(true);
+
+        fc = new JFileChooser();
+    }
+
+    void createUI() {
         p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 
-        JLabel nameLabel = new JLabel("Upload your .card file:");
-        p.add(nameLabel);
-//        nameField = new JTextField(10);
-//        p.add(nameField);
+        JLabel cardLabel = new JLabel("Upload your .card file:");
+        p.add(cardLabel);
         uploadButton = new JButton("Upload");
         p.add(uploadButton);
         uploadButton.addActionListener(this);
         JLabel pinLabel = new JLabel("Enter PIN: ");
         p.add(pinLabel);
         pinField = new JPasswordField(4);
+        pinField.setMaximumSize(new Dimension(60, 20));
         p.add(pinField);
         loginButton = new JButton("Login");
         p.add(loginButton);
@@ -77,9 +81,7 @@ public class LoginPage extends JFrame implements ActionListener {
 
 
         this.setContentPane(p);
-        this.setVisible(true);
-
-        fc = new JFileChooser();
+        this.validate();
     }
 
     /**
@@ -90,12 +92,12 @@ public class LoginPage extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         Object s = e.getSource();
-        if (s == uploadButton) card = new Card(Objects.requireNonNull(uploadFile()).getAbsolutePath());
+        if (s == uploadButton) card = new Card(Objects.requireNonNull(uploadFile()).getAbsolutePath(), false);
         else if (s == loginButton) attemptLogin(card, pinField.getPassword());
         else if (s == signupButton) {
             // Create a sign-up form
-            signUpPage = new SignUpPage(this);
-            contentPane = (JPanel) this.getContentPane();
+            SignUpPage signUpPage = new SignUpPage(this);
+            JPanel contentPane = (JPanel) this.getContentPane();
             contentPane.removeAll();
             contentPane.add(signUpPage);
             contentPane.revalidate();
@@ -144,11 +146,6 @@ public class LoginPage extends JFrame implements ActionListener {
             e.printStackTrace();
             return;
         }
-//        String firstNameStr = reader.nextLine();
-//        String lastNameStr = reader.nextLine();
-//        String realPinStr = reader.nextLine();
-//        String balanceStr = reader.nextLine();
-//        Object[] data = Bank.parseCardInfo(firstNameStr, lastNameStr, realPinStr, balanceStr);
 
         if (Arrays.equals(card.getPin(), pin)) {
             Bank.loggedIn = true;
